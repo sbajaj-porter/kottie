@@ -1,4 +1,3 @@
-import com.vanniktech.maven.publish.SonatypeHost
 import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 
 plugins {
@@ -123,23 +122,21 @@ android {
     }
 }
 
+var currPublishVersion: String? = null
+
 mavenPublishing {
-//    publishToMavenCentral(SonatypeHost.DEFAULT)
-    // or when publishing to https://s01.oss.sonatype.org
-    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL, automaticRelease = true)
-    signAllPublications()
-    coordinates("io.github.ismai117", "kottie", "2.0.0")
+    coordinates("io.github.ismai117", "kottie", "2.1.0-porter")
 
     pom {
         name.set(project.name)
         description.set("Kotlin Multiplatform Animation Library")
         inceptionYear.set("2024")
-        url.set("https://github.com/ismai117/kottie/")
+        url.set("https://github.com/porterin/kottie/")
         licenses {
             license {
                 name.set("The Apache License, Version 2.0")
                 url.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
-                distribution.set("http://www.apache.org/licenses/LICENSE-2.0.txt")
+                distribution.set("repo")
             }
         }
         developers {
@@ -150,10 +147,22 @@ mavenPublishing {
             }
         }
         scm {
-            url.set("https://github.com/ismai117/kottie/")
-            connection.set("scm:git:git://github.com/ismai117/kottie.git")
-            developerConnection.set("scm:git:ssh://git@github.com/ismai117/kottie.git")
+            url.set("https://github.com/porterin/kottie/")
+            connection.set("scm:git:git://github.com/porterin/kottie.git")
+            developerConnection.set("scm:git:ssh://git@github.com:porterin/kottie.git")
         }
     }
 }
 
+publishing {
+    repositories {
+        maven {
+            url = uri("s3://porter-maven/releases")
+            authentication {
+                create<AwsImAuthentication>("awsIm") {
+                    currPublishVersion = version.toString()
+                }
+            }
+        }
+    }
+}
