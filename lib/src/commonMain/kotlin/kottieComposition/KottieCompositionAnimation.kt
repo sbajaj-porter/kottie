@@ -1,0 +1,3 @@
+package kottieComposition
+
+expect class KottieCompositionAnimation
