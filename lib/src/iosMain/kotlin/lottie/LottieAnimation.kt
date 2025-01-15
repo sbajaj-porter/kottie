@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import contentScale.ContentScale
 import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.useContents
 import platform.UIKit.NSLayoutConstraint
 import platform.UIKit.UIColor
 import platform.UIKit.UIView
@@ -31,6 +32,8 @@ fun LottieAnimation(
                 ContentScale.Fit -> UIViewContentMode.UIViewContentModeScaleAspectFit
                 ContentScale.Crop -> UIViewContentMode.UIViewContentModeScaleAspectFill
                 ContentScale.FillBounds -> UIViewContentMode.UIViewContentModeScaleToFill
+                ContentScale.FitWidth -> UIViewContentMode.UIViewContentModeScaleToFill
+                ContentScale.FitHeight -> UIViewContentMode.UIViewContentModeScaleToFill
             }
 
             androidx.compose.ui.viewinterop.UIKitView(
@@ -50,13 +53,29 @@ fun LottieAnimation(
 
                     view.addSubview(composition)
 
-                    NSLayoutConstraint.activateConstraints(
-                        listOf(
+                    val (compositionWidth, compositionHeight) = composition.intrinsicContentSize.useContents { width to height }
+                    val constraints = when (contentScale) {
+                        ContentScale.FitWidth -> listOf(
+                            composition.widthAnchor.constraintEqualToAnchor(view.widthAnchor),
+                            composition.heightAnchor.constraintEqualToAnchor(
+                                composition.widthAnchor,
+                                multiplier = compositionHeight / compositionWidth
+                            )
+                        )
+                        ContentScale.FitHeight -> listOf(
+                            composition.heightAnchor.constraintEqualToAnchor(view.heightAnchor),
+                            composition.widthAnchor.constraintEqualToAnchor(
+                                composition.heightAnchor,
+                                multiplier = compositionWidth / compositionHeight
+                            )
+                        )
+                        else -> listOf(
                             composition.widthAnchor.constraintEqualToAnchor(view.widthAnchor),
                             composition.heightAnchor.constraintEqualToAnchor(view.heightAnchor)
                         )
-                    )
+                    }
 
+                    NSLayoutConstraint.activateConstraints(constraints)
                 }
             )
 

@@ -3,5 +3,7 @@ package contentScale
 enum class ContentScale {
     Fit,
     Crop,
-    FillBounds
+    FillBounds,
+    FitWidth,
+    FitHeight
 }
